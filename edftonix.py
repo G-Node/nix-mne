@@ -67,12 +67,16 @@ if __name__ == "__main__":
             if not len(v):
                 continue
             # check element type
-            # if isinstance(v[0], dict):
+            if isinstance(v, dict) or isinstance(v[0], dict):
+                print("WARNING: Found dictionary in metadata")
+                print("         This is not yet supported")
+                print("         Ignoring")
+                continue
             # Create a new Section to hold the metadata found in the
             # dictionary
             #     create_sub_section(v)
 
-        print(f"Creating metadata key {k} with value {v}")
+        print(f"Creating metadata key {k}")
         sec.create_property(k, v)
 
     nf.close()
