@@ -1,10 +1,23 @@
 import os
 import sys
 from collections.abc import Iterable
-import numpy as np
 import matplotlib.pyplot as plt
 import mne
 import nixio as nix
+
+
+def plot_channel(data_array, index):
+    signal = data_array[index]
+    tdim = data_array.dimensions[1]
+    datadim = data_array.dimensions[0]
+
+    plt.plot(tdim.ticks, signal, label=datadim.labels[index])
+    xlabel = f"({tdim.unit})"
+    plt.xlabel(xlabel)
+    ylabel = f"{datadim.labels[index]} ({data_array.unit})"
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -65,17 +78,3 @@ if __name__ == "__main__":
     nf.close()
     print(f"Created NIX file at '{nfname}'")
     print("Done")
-
-# for idx in range(5):
-#     channel_idx = idx
-#     signal = da[channel_idx]
-#     tdim = da.dimensions[1]
-#     datadim = da.dimensions[0]
-
-#     plt.plot(tdim.ticks, da[channel_idx], label=datadim.labels[idx])
-#     xlabel = f"({tdim.unit})"
-#     plt.xlabel(xlabel)
-#     ylabel = f"{datadim.labels[channel_idx]} ({da.unit})"
-#     plt.ylabel(ylabel)
-#     plt.legend()
-# plt.show()
