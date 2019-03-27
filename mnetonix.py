@@ -106,16 +106,16 @@ def write_multi_da(mneraw, block):
 def write_stim_tags(mneraw, block):
     stimuli = mneraw.annotations
     positions = stimuli.onset
-    extents = stimuli.durations
+    extents = stimuli.duration
     labels = stimuli.description
 
     posda = block.create_data_array("Stimuli onset", "Stimuli Positions",
                                     data=positions)
-    posda.append_set_dimension(labels=labels)
+    posda.append_set_dimension(labels=labels.tolist())
 
     extda = block.create_data_array("Stimuli Durations", "Stimuli Extents",
                                     data=extents)
-    extda.append_set_dimension(labels=labels)
+    extda.append_set_dimension(labels=labels.tolist())
 
     stimmtag = block.create_multi_tag("Stimuli", "EEG Stimuli",
                                       positions=posda)
