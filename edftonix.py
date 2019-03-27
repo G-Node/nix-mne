@@ -2,6 +2,7 @@ import os
 import sys
 from collections.abc import Iterable
 import matplotlib.pyplot as plt
+import numpy as np
 import mne
 import nixio as nix
 
@@ -18,6 +19,43 @@ def plot_channel(data_array, index):
     plt.ylabel(ylabel)
     plt.legend()
     plt.show()
+
+
+def create_md_tree(section, values):
+    for k, v in values.items():
+        print(f"Key {k}")
+        if v is None:
+            print("  skipping (None)")
+            continue
+        if isinstance(v, Iterable):
+            if not len(v):
+                print("  skipping (empty)")
+                continue
+            ndim = np.ndim(v)
+            if ndim > 1:
+                print(f"WARNING: Skipping metadata with {ndim} dimensions")
+                continue
+            # check element type
+            if isinstance(v, dict):
+                # Create a new Section to hold the metadata found in the
+                # dictionary
+                print(f"Subsection {k}")
+                subsec = section.create_section(k, "File Metadata")
+                create_md_tree(subsec, v)
+                continue
+            elif isinstance(v[0], dict):
+                # Create multiple new Sections to hold the metadata found in
+                # each nested dictionary
+                for idx, subd in enumerate(v):
+                    secname = f"{k}-{idx}"
+                    print(f"Subsection {secname}")
+                    subsec = section.create_section(secname, "File Metadata")
+                    create_md_tree(subsec, subd)
+                continue
+
+        print(f"Creating metadata key {k} on section {section.name} "
+              f"with value {v} (type {type(v)})")
+        section.create_property(k, v)
 
 
 def main():
@@ -60,25 +98,8 @@ def main():
     # Write metadata to NIX
     # info dictionary
     sec = nf.create_section("Info", "File Metadata")
-    for k, v in ef.info.items():
-        if v is None:
-            continue
-        if isinstance(v, Iterable):
-            if not len(v):
-                continue
-            # check element type
-            if isinstance(v, dict) or isinstance(v[0], dict):
-                print("WARNING: Found dictionary in metadata")
-                print("         This is not yet supported")
-                print("         Ignoring")
-                continue
-            # Create a new Section to hold the metadata found in the
-            # dictionary
-            #     create_sub_section(v)
-
-        print(f"Creating metadata key {k}")
-        sec.create_property(k, v)
-
+    create_md_tree(sec, ef.info)
+    # nf.sections[0].pprint()
     nf.close()
     print(f"Created NIX file at '{nfname}'")
     print("Done")
