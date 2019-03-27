@@ -110,9 +110,6 @@ def main():
         extrasmd = nf.create_section("Extras", "Raw Extras metadata")
         create_md_tree(extrasmd, extrainfo[0])
 
-    for sec in nf.sections:
-        sec.pprint()
-
     # all done
     nf.close()
     ef.close()
