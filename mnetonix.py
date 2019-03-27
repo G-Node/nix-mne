@@ -1,4 +1,7 @@
+import sys
+import os
 from collections.abc import Iterable
+import mne
 import matplotlib.pyplot as plt
 import numpy as np
 import nixio as nix
@@ -98,3 +101,32 @@ def write_raw_mne(nfname, mneraw):
     nf.close()
     print(f"Created NIX file at '{nfname}'")
     print("Done")
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Please provide BrainVision vhdr filename as argument")
+        sys.exit(1)
+
+    datafilename = sys.argv[1]
+    montage = None
+    if len(sys.argv) > 2:
+        montage = sys.argv[2]
+        montage = os.path.abspath(montage)
+    root, ext = os.path.splitext(datafilename)
+    nfname = root + os.path.extsep + "nix"
+    if ext.casefold() == ".edf".casefold():
+        mneraw = mne.io.read_raw_edf(datafilename, montage=montage,
+                                     preload=True, stim_channel=False)
+    elif ext.casefold() == ".vhdr".casefold():
+        mneraw = mne.io.read_raw_brainvision(datafilename, montage=montage)
+    else:
+        raise RuntimeError(f"Unknown extension '{ext}'")
+    print(f"Converting '{datafilename}' to NIX")
+
+    write_raw_mne(nfname, mneraw)
+    mneraw.close()
+
+
+if __name__ == "__main__":
+    main()
