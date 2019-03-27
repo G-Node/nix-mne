@@ -89,7 +89,8 @@ def main():
     nf = nix.File(nfname, nix.FileMode.Overwrite)
 
     # Write Data to NIX
-    block = nf.create_block("EEG Data Block", "Recording")
+    block = nf.create_block("EEG Data Block", "Recording",
+                            compression=nix.Compression.DeflateNormal)
     da = block.create_data_array("EEG Data", "Raw Data", data=data)
     da.unit = "V"
 
