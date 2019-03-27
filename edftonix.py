@@ -52,12 +52,6 @@ def create_md_tree(section, values):
         section.create_property(k, v)
 
 
-def merge_extra_metadata(info, extras):
-    for extdict in extras:
-        for key, value in extdict.items():
-            info[key] = value
-
-
 def main():
     if len(sys.argv) < 2:
         print("Please provide an EDF filename as argument")
@@ -75,8 +69,7 @@ def main():
     ef = mne.io.read_raw_edf(efname, montage=locname,
                              preload=True, stim_channel=False)
     efinfo = ef.info
-
-    merge_extra_metadata(efinfo, ef._raw_extras)
+    extrainfo = ef._raw_extras
 
     # data and times
     data = ef.get_data()
@@ -105,8 +98,22 @@ def main():
 
     # Write metadata to NIX
     # info dictionary
-    sec = nf.create_section("Info", "File Metadata")
-    create_md_tree(sec, ef.info)
+    infomd = nf.create_section("Info", "File metadata")
+    create_md_tree(infomd, efinfo)
+    # extras
+    if len(extrainfo) > 1:
+        for idx, emd_i in enumerate(extrainfo):
+            extrasmd = nf.create_section(f"Extras-{idx}",
+                                         "Raw Extras metadata")
+            create_md_tree(extrasmd, emd_i)
+    else:
+        extrasmd = nf.create_section("Extras", "Raw Extras metadata")
+        create_md_tree(extrasmd, extrainfo[0])
+
+    for sec in nf.sections:
+        sec.pprint()
+
+    # all done
     nf.close()
     ef.close()
     print(f"Created NIX file at '{nfname}'")
