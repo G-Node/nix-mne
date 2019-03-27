@@ -20,7 +20,7 @@ def plot_channel(data_array, index):
     plt.show()
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) < 2:
         print("Please provide an EDF filename as argument")
         sys.exit(1)
@@ -82,3 +82,7 @@ if __name__ == "__main__":
     nf.close()
     print(f"Created NIX file at '{nfname}'")
     print("Done")
+
+
+if __name__ == "__main__":
+    main()
