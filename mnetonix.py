@@ -54,23 +54,14 @@ def create_md_tree(section, values):
         section.create_property(k, v)
 
 
-def write_raw_mne(nfname, mneraw):
-    mneinfo = mneraw.info
-    extrainfo = mneraw._raw_extras
-
+def write_single_da(mneraw, block):
     # data and times
     data = mneraw.get_data()
     time = mneraw.times
 
-    nchan = mneinfo["nchan"]
+    nchan = mneraw.info["nchan"]
     print(f"Found {nchan} channels with {mneraw.n_times} samples per channel")
 
-    # Create NIX file
-    nf = nix.File(nfname, nix.FileMode.Overwrite)
-
-    # Write Data to NIX
-    block = nf.create_block("EEG Data Block", "Recording",
-                            compression=nix.Compression.DeflateNormal)
     da = block.create_data_array("EEG Data", "Raw Data", data=data)
     da.unit = "V"
 
@@ -83,6 +74,50 @@ def write_raw_mne(nfname, mneraw):
             # NOTE: EDF always uses seconds
             da.append_range_dimension(ticks=time, label="time", unit="s")
 
+
+def write_multi_da(mneraw, block):
+    data = mneraw.get_data()
+    time = mneraw.times
+
+    nchan = mneraw.info["nchan"]
+    channames = mneraw.ch_names
+
+    print(f"Found {nchan} channels with {mneraw.n_times} samples per channel")
+
+    # find the channel dimension to iterate over it
+    for idx, dimlen in enumerate(data.shape):
+        if dimlen == nchan:
+            chanidx = idx
+            break
+    else:
+        raise RuntimeError("Could not find data dimension that matches number "
+                           "of channels")
+
+    for idx, chandata in enumerate(np.rollaxis(data, chanidx)):
+        chname = channames[idx]
+        da = block.create_data_array(chname, "Raw Data", data=chandata)
+        da.unit = "V"
+
+        # times: RangeDimension
+        # NOTE: EDF always uses seconds
+        da.append_range_dimension(ticks=time, label="time", unit="s")
+
+
+def write_raw_mne(nfname, mneraw, split_data_channels=True):
+    mneinfo = mneraw.info
+    extrainfo = mneraw._raw_extras
+
+    # Create NIX file
+    nf = nix.File(nfname, nix.FileMode.Overwrite)
+
+    # Write Data to NIX
+    block = nf.create_block("EEG Data Block", "Recording",
+                            compression=nix.Compression.DeflateNormal)
+
+    if split_data_channels:
+        write_multi_da(mneraw, block)
+    else:
+        write_single_da(mneraw, block)
     # Write metadata to NIX
     # info dictionary
     infomd = nf.create_section("Info", "File metadata")
