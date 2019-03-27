@@ -23,23 +23,20 @@ def plot_channel(data_array, index):
 
 def create_md_tree(section, values):
     for k, v in values.items():
-        print(f"Key {k}")
         if v is None:
-            print("  skipping (None)")
             continue
         if isinstance(v, Iterable):
             if not len(v):
-                print("  skipping (empty)")
                 continue
             ndim = np.ndim(v)
             if ndim > 1:
-                print(f"WARNING: Skipping metadata with {ndim} dimensions")
+                print(f"WARNING: Skipping metadata {k} with {ndim} dimensions")
+                print(v)
                 continue
             # check element type
             if isinstance(v, dict):
                 # Create a new Section to hold the metadata found in the
                 # dictionary
-                print(f"Subsection {k}")
                 subsec = section.create_section(k, "File Metadata")
                 create_md_tree(subsec, v)
                 continue
@@ -48,13 +45,10 @@ def create_md_tree(section, values):
                 # each nested dictionary
                 for idx, subd in enumerate(v):
                     secname = f"{k}-{idx}"
-                    print(f"Subsection {secname}")
                     subsec = section.create_section(secname, "File Metadata")
                     create_md_tree(subsec, subd)
                 continue
 
-        print(f"Creating metadata key {k} on section {section.name} "
-              f"with value {v} (type {type(v)})")
         section.create_property(k, v)
 
 
@@ -64,11 +58,16 @@ def main():
         sys.exit(1)
 
     efname = sys.argv[1]
+    locname = None
+    if len(sys.argv) > 2:
+        locname = sys.argv[2]
+        locname = os.path.abspath(locname)
     root, ext = os.path.splitext(efname)
     nfname = root + os.path.extsep + "nix"
     print(f"Converting '{efname}' to NIX")
     # stim_channel=False marks the last channel as "EDF Annotations"
-    ef = mne.io.read_raw_edf(efname, preload=True, stim_channel=False)
+    ef = mne.io.read_raw_edf(efname, montage=locname,
+                             preload=True, stim_channel=False)
     efinfo = ef.info
 
     # data and times
@@ -99,8 +98,11 @@ def main():
     # info dictionary
     sec = nf.create_section("Info", "File Metadata")
     create_md_tree(sec, ef.info)
-    # nf.sections[0].pprint()
+    # import IPython; IPython.embed()
+    nf.sections[0].pprint()
+    print(nf.sections[0]["ch_names"])
     nf.close()
+    ef.close()
     print(f"Created NIX file at '{nfname}'")
     print("Done")
 
