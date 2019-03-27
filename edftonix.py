@@ -98,9 +98,6 @@ def main():
     # info dictionary
     sec = nf.create_section("Info", "File Metadata")
     create_md_tree(sec, ef.info)
-    # import IPython; IPython.embed()
-    nf.sections[0].pprint()
-    print(nf.sections[0]["ch_names"])
     nf.close()
     ef.close()
     print(f"Created NIX file at '{nfname}'")
