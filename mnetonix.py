@@ -103,6 +103,29 @@ def write_multi_da(mneraw, block):
         da.append_range_dimension(ticks=time, label="time", unit="s")
 
 
+def write_stim_tags(mneraw, block):
+    stimuli = mneraw.annotations
+    positions = stimuli.onset
+    extents = stimuli.durations
+    labels = stimuli.description
+
+    posda = block.create_data_array("Stimuli onset", "Stimuli Positions",
+                                    data=positions)
+    posda.append_set_dimension(labels=labels)
+
+    extda = block.create_data_array("Stimuli Durations", "Stimuli Extents",
+                                    data=extents)
+    extda.append_set_dimension(labels=labels)
+
+    stimmtag = block.create_multi_tag("Stimuli", "EEG Stimuli",
+                                      positions=posda)
+    stimmtag.extents = extda
+
+    for da in block.data_arrays:
+        if da.type == "Raw Data":  # TODO: Make DA type constant global string
+            stimmtag.references.append(da)
+
+
 def write_raw_mne(nfname, mneraw, split_data_channels=True):
     mneinfo = mneraw.info
     extrainfo = mneraw._raw_extras
@@ -118,6 +141,9 @@ def write_raw_mne(nfname, mneraw, split_data_channels=True):
         write_multi_da(mneraw, block)
     else:
         write_single_da(mneraw, block)
+
+    write_stim_tags(mneraw, block)
+
     # Write metadata to NIX
     # info dictionary
     infomd = nf.create_section("Info", "File metadata")
