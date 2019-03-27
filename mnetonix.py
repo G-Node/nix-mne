@@ -105,8 +105,8 @@ def write_multi_da(mneraw, block):
 
 def write_stim_tags(mneraw, block):
     stimuli = mneraw.annotations
-    positions = stimuli.onset
-    extents = stimuli.duration
+    positions = [(p,) for p in stimuli.onset]
+    extents = [(e,) for e in stimuli.duration]
     labels = stimuli.description
 
     posda = block.create_data_array("Stimuli onset", "Stimuli Positions",
