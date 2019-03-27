@@ -119,7 +119,8 @@ def main():
         mneraw = mne.io.read_raw_edf(datafilename, montage=montage,
                                      preload=True, stim_channel=False)
     elif ext.casefold() == ".vhdr".casefold():
-        mneraw = mne.io.read_raw_brainvision(datafilename, montage=montage)
+        mneraw = mne.io.read_raw_brainvision(datafilename, montage=montage,
+                                             preload=True, stim_channel=False)
     else:
         raise RuntimeError(f"Unknown extension '{ext}'")
     print(f"Converting '{datafilename}' to NIX")
