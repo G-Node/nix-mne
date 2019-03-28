@@ -73,7 +73,6 @@ def create_md_tree(section, values, block):
             if ndim > 1:
                 da = block.create_data_array(k, "Multidimensional Metadata",
                                              data=v)
-                # subsec = section.create_section(k, "File Metadata")
                 section.create_property(k, da.id)
                 da.metadata = section
                 continue
@@ -81,7 +80,7 @@ def create_md_tree(section, values, block):
             if isinstance(v, Mapping):
                 # Create a new Section to hold the metadata found in the
                 # dictionary
-                subsec = section.create_section(k, "File Metadata")
+                subsec = section.create_section(k, str(v.__class__))
                 create_md_tree(subsec, v, block)
                 continue
             elif isinstance(v[0], Mapping):
@@ -89,7 +88,7 @@ def create_md_tree(section, values, block):
                 # each nested dictionary
                 for idx, subd in enumerate(v):
                     secname = f"{k}-{idx}"
-                    subsec = section.create_section(secname, "File Metadata")
+                    subsec = section.create_section(secname, str(v.__class__))
                     create_md_tree(subsec, subd, block)
                 continue
 
