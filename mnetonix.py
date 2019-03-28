@@ -17,7 +17,7 @@ NIX Format layout:
 
 Data:
 Raw Data are stored in either a single 2-dimensional DataArray or a collection
-of DataArrays (one per recording channel).  The latter makes Tagging easier
+of DataArrays (one per recording channel).  The latter makes tagging easier
 since MultiTag positions and extents don't need to specify every channel they
 reference.  However, creating multiple DataArrays makes file sizes much
 bigger.
