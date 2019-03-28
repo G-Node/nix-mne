@@ -77,6 +77,8 @@ def create_md_tree(section, values, block):
             if ndim > 1:
                 da = block.create_data_array(k, "Multidimensional Metadata",
                                              data=v)
+                for _ in range(ndim):
+                    da.append_set_dimension()
                 section.create_property(k, da.id)
                 da.metadata = section
                 continue
@@ -155,9 +157,11 @@ def write_multi_da(mneraw, block):
 
 
 def write_stim_tags(mneraw, block):
+    # check dimensionality of data
+    datashape = block.groups[RAW_DATA_GROUP_NAME].data_arrays[0].shape
     stimuli = mneraw.annotations
-    positions = [(p,) for p in stimuli.onset]
-    extents = [(e,) for e in stimuli.duration]
+    positions = [(p, 0) for p in stimuli.onset]
+    extents = [(e, datashape[1]) for e in stimuli.duration]
     labels = stimuli.description
 
     posda = block.create_data_array("Stimuli onset", "Stimuli Positions",
@@ -173,7 +177,7 @@ def write_stim_tags(mneraw, block):
     stimmtag.extents = extda
     block.groups[RAW_DATA_GROUP_NAME].multi_tags.append(stimmtag)
 
-    for da in block.data_arrays:
+    for da in block.groups[RAW_DATA_GROUP_NAME].data_arrays:
         if da.type == RAW_DATA_TYPE:
             stimmtag.references.append(da)
 
