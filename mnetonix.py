@@ -89,12 +89,14 @@ def create_md_tree(section, values, block):
                 subsec = section.create_section(k, str(v.__class__))
                 create_md_tree(subsec, v, block)
                 continue
-            elif isinstance(v[0], Mapping):
-                # Create multiple new Sections to hold the metadata found in
-                # each nested dictionary
+            if isinstance(v[0], Mapping):
+                # Create a new subsection to hold each nested dictionary as
+                # sub-subsections
+                print(k)
+                print(v)
+                subsec = section.create_section(k, str(v.__class__))
                 for idx, subd in enumerate(v):
-                    secname = f"{k}-{idx}"
-                    subsec = section.create_section(secname, str(v.__class__))
+                    print(subd)
                     create_md_tree(subsec, subd, block)
                 continue
 
@@ -257,9 +259,6 @@ def main():
         raise RuntimeError(f"Unknown extension '{ext}'")
     print(f"Converting '{datafilename}' to NIX")
 
-    write_raw_mne(nfname, mneraw, True)
-
-    nfname = root + "-oneda" + os.path.extsep + "nix"
     write_raw_mne(nfname, mneraw, False)
 
     mneraw.close()
