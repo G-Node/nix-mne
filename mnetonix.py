@@ -79,7 +79,8 @@ def create_md_tree(section, values, block):
                                              data=v)
                 for _ in range(ndim):
                     da.append_set_dimension()
-                section.create_property(k, da.id)
+                prop = section.create_property(k, da.id)
+                prop.type = str(v.__class__)
                 da.metadata = section
                 continue
             # check element type
@@ -100,10 +101,11 @@ def create_md_tree(section, values, block):
                 continue
 
         try:
-            section.create_property(k, v)
+            prop = section.create_property(k, v)
         except TypeError:
             # inconsistent iterable types: upgrade to floats
-            section.create_property(k, [float(vi) for vi in v])
+            prop = section.create_property(k, [float(vi) for vi in v])
+        prop.type = str(v.__class__)
 
 
 def write_single_da(mneraw, block):
