@@ -160,9 +160,16 @@ def write_stim_tags(mneraw, block):
     # check dimensionality of data
     datashape = block.groups[RAW_DATA_GROUP_NAME].data_arrays[0].shape
     stimuli = mneraw.annotations
-    positions = [(p, 0) for p in stimuli.onset]
-    extents = [(e, datashape[1]) for e in stimuli.duration]
     labels = stimuli.description
+
+    ndim = len(datashape)
+    if ndim == 1:
+        positions = stimuli.onset
+        extents = stimuli.duration
+    else:
+        channelextent = mneraw.info["nchan"] - 1
+        positions = [(0, p) for p in stimuli.onset]
+        extents = [(channelextent, e) for e in stimuli.duration]
 
     posda = block.create_data_array("Stimuli onset", "Stimuli Positions",
                                     data=positions)
@@ -171,6 +178,11 @@ def write_stim_tags(mneraw, block):
     extda = block.create_data_array("Stimuli Durations", "Stimuli Extents",
                                     data=extents)
     extda.append_set_dimension(labels=labels.tolist())
+
+    for _ in range(ndim-1):
+        # extra set dimensions for any extra data dimensions (beyond the first)
+        posda.append_set_dimension()
+        extda.append_set_dimension()
 
     stimmtag = block.create_multi_tag("Stimuli", "EEG Stimuli",
                                       positions=posda)
@@ -182,7 +194,7 @@ def write_stim_tags(mneraw, block):
             stimmtag.references.append(da)
 
 
-def write_raw_mne(nfname, mneraw, split_data_channels=True):
+def write_raw_mne(nfname, mneraw, split_data_channels=False):
     mneinfo = mneraw.info
     extrainfo = mneraw._raw_extras
 
@@ -199,7 +211,8 @@ def write_raw_mne(nfname, mneraw, split_data_channels=True):
     else:
         write_single_da(mneraw, block)
 
-    write_stim_tags(mneraw, block)
+    if mneraw.annotations:
+        write_stim_tags(mneraw, block)
 
     # Write metadata to NIX
     # info dictionary
@@ -244,7 +257,11 @@ def main():
         raise RuntimeError(f"Unknown extension '{ext}'")
     print(f"Converting '{datafilename}' to NIX")
 
-    write_raw_mne(nfname, mneraw)
+    write_raw_mne(nfname, mneraw, True)
+
+    nfname = root + "-oneda" + os.path.extsep + "nix"
+    write_raw_mne(nfname, mneraw, False)
+
     mneraw.close()
 
 
