@@ -1,3 +1,39 @@
+"""
+mnetonix.py
+
+Usage:
+python mnetonix.py <datafile> <montage>
+
+- datafile: Either an EDF file or a BrainVision header file (vhdr).
+- montage: Any format montage file supported by MNE.
+
+(Requires Python 3)
+
+Command line script for reading EDF and BrainVision files using MNE
+(mne-python) and storing the data and metadata into a NIX file.  Supports
+reading montage files for recording channel locations.
+
+NIX Format layout:
+
+Data:
+Raw Data are stored in either a single 2-dimensional DataArray or a collection
+of DataArrays (one per recording channel).  The latter makes Tagging easier
+since MultiTag positions and extents don't need to specify every channel they
+reference.  However, creating multiple DataArrays makes file sizes much
+bigger.
+
+Stimuli:
+MNE provides stimulus information through the Raw.annotations dictionary.
+Onsets correspond to the 'positions' array and durations correspond to the
+'extents' array of the "Stimuli" MultiTag.
+
+Metadata:
+MNE collects metadata into a (nested) dictionary (Raw.info).  All non-empty
+keys are converted into Properties in NIX.  The nested structure of the
+dictionary is replicated in NIX by creating child Sections, starting with one
+root section with name "Info".
+
+"""
 import sys
 import os
 from collections.abc import Iterable
