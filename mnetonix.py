@@ -43,6 +43,10 @@ import numpy as np
 import nixio as nix
 
 
+DATA_BLOCK_NAME = "EEG Data Block"
+DATA_BLOCK_TYPE = "Recording"
+RAW_DATA_GROUP_NAME = "Raw Data Group"
+RAW_DATA_GROUP_TYPE = "EEG Channels"
 RAW_DATA_TYPE = "Raw Data"
 
 
@@ -108,6 +112,7 @@ def write_single_da(mneraw, block):
     print(f"Found {nchan} channels with {mneraw.n_times} samples per channel")
 
     da = block.create_data_array("EEG Data", RAW_DATA_TYPE, data=data)
+    block.groups[RAW_DATA_GROUP_NAME].data_arrays.append(da)
     da.unit = "V"
 
     for dimlen in data.shape:
@@ -141,6 +146,7 @@ def write_multi_da(mneraw, block):
     for idx, chandata in enumerate(np.rollaxis(data, chanidx)):
         chname = channames[idx]
         da = block.create_data_array(chname, RAW_DATA_TYPE, data=chandata)
+        block.groups[RAW_DATA_GROUP_NAME].data_arrays.append(da)
         da.unit = "V"
 
         # times: RangeDimension
@@ -165,6 +171,7 @@ def write_stim_tags(mneraw, block):
     stimmtag = block.create_multi_tag("Stimuli", "EEG Stimuli",
                                       positions=posda)
     stimmtag.extents = extda
+    block.groups[RAW_DATA_GROUP_NAME].multi_tags.append(stimmtag)
 
     for da in block.data_arrays:
         if da.type == RAW_DATA_TYPE:
@@ -179,8 +186,9 @@ def write_raw_mne(nfname, mneraw, split_data_channels=True):
     nf = nix.File(nfname, nix.FileMode.Overwrite)
 
     # Write Data to NIX
-    block = nf.create_block("EEG Data Block", "Recording",
+    block = nf.create_block(DATA_BLOCK_NAME, DATA_BLOCK_TYPE,
                             compression=nix.Compression.DeflateNormal)
+    block.create_group(RAW_DATA_GROUP_NAME, RAW_DATA_GROUP_TYPE)
 
     if split_data_channels:
         write_multi_da(mneraw, block)
