@@ -35,7 +35,7 @@ def md_to_dict(section):
         to = sdict["to"]
         fro = sdict["from"]
         trans = sdict["trans"]
-        trans = section.referring_data_arrays()[0][:]
+        trans = section.referring_data_arrays[0][:]
         return mne.Transform(to, fro, trans)
 
     for sec in section.sections:
@@ -75,6 +75,11 @@ def main():
 
     print(info)
     print(bvfile.info)
+
+    print(info["dev_head_t"])
+    print(bvfile.info["dev_head_t"])
+
+    print(info["dev_head_t"] == bvfile.info["dev_head_t"])
 
     nixfile.close()
 
