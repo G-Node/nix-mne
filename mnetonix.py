@@ -92,12 +92,11 @@ def create_md_tree(section, values, block):
             if isinstance(v[0], Mapping):
                 # Create a new subsection to hold each nested dictionary as
                 # sub-subsections
-                print(k)
-                print(v)
                 subsec = section.create_section(k, str(v.__class__))
                 for idx, subd in enumerate(v):
-                    print(subd)
-                    create_md_tree(subsec, subd, block)
+                    subsubsec = subsec.create_section(f"{k}-{idx}",
+                                                      str(subd.__class__))
+                    create_md_tree(subsubsec, subd, block)
                 continue
 
         try:

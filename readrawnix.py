@@ -13,6 +13,9 @@ def md_to_dict(section):
         sdict[prop.name] = values
 
     for sec in section.sections:
+        if sec.name == "chs":
+            print(str(sec) + "\n\n")
+            print("\n".join(str(s) for s in sec.sections))
         sdict[sec.name] = md_to_dict(sec)
 
     return sdict
