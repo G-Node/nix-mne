@@ -7,6 +7,9 @@ import numpy as np
 import nixio as nix
 
 
+RAW_DATA_TYPE = "Raw Data"
+
+
 def plot_channel(data_array, index):
     signal = data_array[index]
     tdim = data_array.dimensions[1]
@@ -62,7 +65,7 @@ def write_single_da(mneraw, block):
     nchan = mneraw.info["nchan"]
     print(f"Found {nchan} channels with {mneraw.n_times} samples per channel")
 
-    da = block.create_data_array("EEG Data", "Raw Data", data=data)
+    da = block.create_data_array("EEG Data", RAW_DATA_TYPE, data=data)
     da.unit = "V"
 
     for dimlen in data.shape:
@@ -95,7 +98,7 @@ def write_multi_da(mneraw, block):
 
     for idx, chandata in enumerate(np.rollaxis(data, chanidx)):
         chname = channames[idx]
-        da = block.create_data_array(chname, "Raw Data", data=chandata)
+        da = block.create_data_array(chname, RAW_DATA_TYPE, data=chandata)
         da.unit = "V"
 
         # times: RangeDimension
