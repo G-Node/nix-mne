@@ -125,7 +125,7 @@ def write_stim_tags(mneraw, block):
     stimmtag.extents = extda
 
     for da in block.data_arrays:
-        if da.type == "Raw Data":  # TODO: Make DA type constant global string
+        if da.type == RAW_DATA_TYPE:
             stimmtag.references.append(da)
 
 
