@@ -90,7 +90,11 @@ def create_md_tree(section, values):
                     create_md_tree(subsec, subd)
                 continue
 
-        section.create_property(k, v)
+        try:
+            section.create_property(k, v)
+        except TypeError:
+            # inconsistent iterable types: upgrade to floats
+            section.create_property(k, [float(vi) for vi in v])
 
 
 def write_single_da(mneraw, block):
