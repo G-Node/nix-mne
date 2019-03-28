@@ -2,10 +2,10 @@
 mnetonix.py
 
 Usage:
-python mnetonix.py <datafile> <montage>
+  python mnetonix.py <datafile> <montage>
 
-- datafile: Either an EDF file or a BrainVision header file (vhdr).
-- montage: Any format montage file supported by MNE.
+datafile: Either an EDF file or a BrainVision header file (vhdr).
+montage: Any format montage file supported by MNE.
 
 (Requires Python 3)
 
@@ -36,7 +36,7 @@ root section with name "Info".
 """
 import sys
 import os
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 import mne
 import matplotlib.pyplot as plt
 import numpy as np
@@ -60,7 +60,7 @@ def plot_channel(data_array, index):
     plt.show()
 
 
-def create_md_tree(section, values):
+def create_md_tree(section, values, block):
     if values is None:
         return
     for k, v in values.items():
@@ -71,23 +71,26 @@ def create_md_tree(section, values):
                 continue
             ndim = np.ndim(v)
             if ndim > 1:
-                print(f"WARNING: Skipping metadata {k} with {ndim} dimensions")
-                print(v)
+                da = block.create_data_array(k, "Multidimensional Metadata",
+                                             data=v)
+                # subsec = section.create_section(k, "File Metadata")
+                section.create_property(k, da.id)
+                da.metadata = section
                 continue
             # check element type
-            if isinstance(v, dict):
+            if isinstance(v, Mapping):
                 # Create a new Section to hold the metadata found in the
                 # dictionary
                 subsec = section.create_section(k, "File Metadata")
-                create_md_tree(subsec, v)
+                create_md_tree(subsec, v, block)
                 continue
-            elif isinstance(v[0], dict):
+            elif isinstance(v[0], Mapping):
                 # Create multiple new Sections to hold the metadata found in
                 # each nested dictionary
                 for idx, subd in enumerate(v):
                     secname = f"{k}-{idx}"
                     subsec = section.create_section(secname, "File Metadata")
-                    create_md_tree(subsec, subd)
+                    create_md_tree(subsec, subd, block)
                 continue
 
         try:
@@ -190,16 +193,16 @@ def write_raw_mne(nfname, mneraw, split_data_channels=True):
     # Write metadata to NIX
     # info dictionary
     infomd = nf.create_section("Info", "File metadata")
-    create_md_tree(infomd, mneinfo)
+    create_md_tree(infomd, mneinfo, block)
     # extras
     if len(extrainfo) > 1:
         for idx, emd_i in enumerate(extrainfo):
             extrasmd = nf.create_section(f"Extras-{idx}",
                                          "Raw Extras metadata")
-            create_md_tree(extrasmd, emd_i)
+            create_md_tree(extrasmd, emd_i, block)
     elif extrainfo:
         extrasmd = nf.create_section("Extras", "Raw Extras metadata")
-        create_md_tree(extrasmd, extrainfo[0])
+        create_md_tree(extrasmd, extrainfo[0], block)
 
     # all done
     nf.close()
@@ -209,7 +212,8 @@ def write_raw_mne(nfname, mneraw, split_data_channels=True):
 
 def main():
     if len(sys.argv) < 2:
-        print("Please provide BrainVision vhdr filename as argument")
+        print("Please provide either a BrainVision vhdr or "
+              "an EDF filename as the first argument")
         sys.exit(1)
 
     datafilename = sys.argv[1]
