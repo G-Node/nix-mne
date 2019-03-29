@@ -63,12 +63,7 @@ def merge_data_arrays(arrays):
     return np.array(rows)
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Please provide either a NIX filename as the first argument")
-        sys.exit(1)
-
-    nixfilename = sys.argv[1]
+def import_nix(nixfilename):
     nixfile = nix.File(nixfilename, mode=nix.FileMode.ReadOnly)
 
     # root, ext = os.path.splitext(nixfilename)
@@ -92,9 +87,21 @@ def main():
     else:
         nixrawdata = datagroup.data_arrays[0][:]
 
+    # Create MNE RawArray
     mnerawdata = mne.io.RawArray(nixrawdata, info)
 
     nixfile.close()
+
+    return mnerawdata
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Please provide either a NIX filename as the first argument")
+        sys.exit(1)
+
+    nixfilename = sys.argv[1]
+    import_nix(nixfilename)
 
 
 if __name__ == "__main__":
