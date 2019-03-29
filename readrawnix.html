@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module readrawnix</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>readrawnix</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/achilleas/code/pilsen-workshop/DataConversionToNIX/readrawnix.py">/Users/achilleas/code/pilsen-workshop/DataConversionToNIX/readrawnix.py</a></font></td></tr></table>
+    <p><tt>readrawnix.py<br>
+&nbsp;<br>
+Usage:<br>
+&nbsp;&nbsp;python&nbsp;readrawnix.py&nbsp;&lt;nixfile&gt;<br>
+&nbsp;<br>
+Arguments:<br>
+&nbsp;&nbsp;nixfile&nbsp;&nbsp;&nbsp;Path&nbsp;to&nbsp;the&nbsp;NIX&nbsp;file&nbsp;to&nbsp;read.<br>
+&nbsp;<br>
+&nbsp;<br>
+(Requires&nbsp;Python&nbsp;3)<br>
+&nbsp;<br>
+Command&nbsp;line&nbsp;script&nbsp;for&nbsp;reading&nbsp;NIX&nbsp;files&nbsp;into&nbsp;an&nbsp;MNE&nbsp;structure&nbsp;(mne-python).<br>
+NIX&nbsp;file&nbsp;should&nbsp;have&nbsp;been&nbsp;created&nbsp;using&nbsp;the&nbsp;mnetonix.py&nbsp;script/module.&nbsp;&nbsp;This<br>
+reader&nbsp;expects&nbsp;certain&nbsp;objects&nbsp;relationships&nbsp;and&nbsp;names&nbsp;to&nbsp;exist&nbsp;in&nbsp;order&nbsp;to<br>
+load&nbsp;all&nbsp;data&nbsp;and&nbsp;metadata&nbsp;successfully.&nbsp;&nbsp;Refer&nbsp;to&nbsp;the&nbsp;"NIX&nbsp;Format&nbsp;Layout"&nbsp;in<br>
+the&nbsp;mnetonix.py&nbsp;module&nbsp;for&nbsp;details.<br>
+&nbsp;<br>
+To&nbsp;include&nbsp;in&nbsp;a&nbsp;script,&nbsp;call&nbsp;the&nbsp;'importnix()'&nbsp;and&nbsp;provide&nbsp;a&nbsp;NIX&nbsp;filename.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="mne.html">mne</a><br>
+<a href="nixio.html">nixio</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-convert_prop_type"><strong>convert_prop_type</strong></a>(prop)</dt></dl>
+ <dl><dt><a name="-create_mne_annotations"><strong>create_mne_annotations</strong></a>(mtags)</dt></dl>
+ <dl><dt><a name="-import_nix"><strong>import_nix</strong></a>(nixfilename)</dt><dd><tt>Import&nbsp;a&nbsp;NIX&nbsp;file&nbsp;(generated&nbsp;with&nbsp;mnetonix.py)&nbsp;into&nbsp;an&nbsp;MNE&nbsp;Raw&nbsp;structure.<br>
+&nbsp;<br>
+:param&nbsp;nixfilename:&nbsp;Path&nbsp;to&nbsp;the&nbsp;NIX&nbsp;file&nbsp;to&nbsp;be&nbsp;loaded.<br>
+:rtype:&nbsp;mne.io.RawArray</tt></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>()</dt></dl>
+ <dl><dt><a name="-md_to_dict"><strong>md_to_dict</strong></a>(section)</dt></dl>
+ <dl><dt><a name="-merge_data_arrays"><strong>merge_data_arrays</strong></a>(arrays)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>DATA_BLOCK_NAME</strong> = 'EEG Data Block'<br>
+<strong>DATA_BLOCK_TYPE</strong> = 'Recording'<br>
+<strong>RAW_DATA_GROUP_NAME</strong> = 'Raw Data Group'<br>
+<strong>RAW_DATA_GROUP_TYPE</strong> = 'EEG Channels'<br>
+<strong>RAW_DATA_TYPE</strong> = 'Raw Data'<br>
+<strong>typemap</strong> = {'bool': &lt;class 'bool'&gt;, 'float': &lt;class 'float'&gt;, 'int': &lt;class 'int'&gt;, 'list': &lt;class 'list'&gt;, 'numpy.float64': &lt;class 'numpy.float64'&gt;, 'numpy.ndarray': &lt;built-in function array&gt;, 'str': &lt;class 'str'&gt;, 'tuple': &lt;class 'tuple'&gt;}</td></tr></table>
+</body></html>
