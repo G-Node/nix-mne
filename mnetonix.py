@@ -199,7 +199,7 @@ def write_stim_tags(mneraw, block, split):
     if split:
         stimtuples = separate_stimulus_types(stimuli)
         for label, st in stimtuples.items():
-            label = label.replace("/", "-")
+            label = label.replace("/", "|")
             create_stimulus_multi_tag(st, block, mneraw, mtagname=label)
     else:
         stimtuples = [(l, o, d) for l, o, d in zip(stimuli.description,
