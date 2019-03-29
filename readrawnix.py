@@ -1,4 +1,3 @@
-import os
 import sys
 import numpy as np
 import nixio as nix
@@ -63,6 +62,26 @@ def merge_data_arrays(arrays):
     return np.array(rows)
 
 
+def create_mne_annotations(mtags):
+    onset = list()
+    duration = list()
+    description = list()
+    for mtag in mtags:
+        posshape = mtag.positions.shape
+        if len(posshape) == 1:
+            onset.extend(mtag.positions)
+            duration.extend(mtag.extents)
+        else:
+            onset.extend([p[1] for p in mtag.positions])
+            duration.extend([e[1] for e in mtag.extents])
+
+        description.extend(mtag.positions.dimensions[0].labels)
+
+    return mne.Annotations(onset=onset,
+                           duration=duration,
+                           description=description)
+
+
 def import_nix(nixfilename):
     nixfile = nix.File(nixfilename, mode=nix.FileMode.ReadOnly)
 
@@ -89,6 +108,12 @@ def import_nix(nixfilename):
 
     # Create MNE RawArray
     mnerawdata = mne.io.RawArray(nixrawdata, info)
+
+    # Add annotations: Stimuli from MultiTags
+    mtags = datagroup.multi_tags
+    annotations = create_mne_annotations(mtags)
+
+    mnerawdata.set_annotations(annotations)
 
     nixfile.close()
 
