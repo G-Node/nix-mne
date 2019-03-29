@@ -238,15 +238,21 @@ def write_raw_mne(nfname, mneraw, split_data_channels=False):
 
 
 def main():
-    if len(sys.argv) < 2:
+    args = sys.argv
+    if len(args) < 2:
         print("Please provide either a BrainVision vhdr or "
               "an EDF filename as the first argument")
         sys.exit(1)
 
-    datafilename = sys.argv[1]
+    splitdata = False
+    if "--split-data" in args:
+        splitdata = True
+        args.remove("--split-data")
+
+    datafilename = args[1]
     montage = None
-    if len(sys.argv) > 2:
-        montage = sys.argv[2]
+    if len(args) > 2:
+        montage = args[2]
         montage = os.path.abspath(montage)
     root, ext = os.path.splitext(datafilename)
     nfname = root + os.path.extsep + "nix"
@@ -259,8 +265,10 @@ def main():
     else:
         raise RuntimeError(f"Unknown extension '{ext}'")
     print(f"Converting '{datafilename}' to NIX")
+    if splitdata:
+        print("  Creating one data array per channel")
 
-    write_raw_mne(nfname, mneraw, False)
+    write_raw_mne(nfname, mneraw, splitdata)
 
     mneraw.close()
 

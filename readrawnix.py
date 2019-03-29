@@ -5,6 +5,13 @@ import nixio as nix
 import mne
 
 
+DATA_BLOCK_NAME = "EEG Data Block"
+DATA_BLOCK_TYPE = "Recording"
+RAW_DATA_GROUP_NAME = "Raw Data Group"
+RAW_DATA_GROUP_TYPE = "EEG Channels"
+RAW_DATA_TYPE = "Raw Data"
+
+
 typemap = {
     "str": str,
     "int": int,
@@ -36,7 +43,7 @@ def md_to_dict(section):
         fro = sdict["from"]
         trans = sdict["trans"]
         trans = section.referring_data_arrays[0][:]
-        return mne.Transform(to, fro, trans)
+        return mne.Transform(fro=fro, to=to, trans=trans)
 
     for sec in section.sections:
         if sec.name == "chs":
@@ -51,6 +58,11 @@ def md_to_dict(section):
     return sdict
 
 
+def merge_data_arrays(arrays):
+    rows = [a[:] for a in arrays]
+    return np.array(rows)
+
+
 def main():
     if len(sys.argv) < 2:
         print("Please provide either a NIX filename as the first argument")
@@ -59,27 +71,28 @@ def main():
     nixfilename = sys.argv[1]
     nixfile = nix.File(nixfilename, mode=nix.FileMode.ReadOnly)
 
-    root, ext = os.path.splitext(nixfilename)
-    bvfilename = root + os.extsep + "vhdr"
-    bvfile = mne.io.read_raw_brainvision(bvfilename, stim_channel=False)
+    # root, ext = os.path.splitext(nixfilename)
+    # bvfilename = root + os.extsep + "vhdr"
+    # bvfile = mne.io.read_raw_brainvision(bvfilename, stim_channel=False)
 
     # Create MNE Info object
     infosec = nixfile.sections["Info"]
     nchan = infosec["nchan"]
     sfreq = infosec["sfreq"]
     info = mne.create_info(nchan, sfreq)
-    print(info)
 
     nixinfodict = md_to_dict(infosec)
     info.update(nixinfodict)
 
-    print(info)
-    print(bvfile.info)
+    # Read raw data into MNE objects
+    datagroup = nixfile.blocks[DATA_BLOCK_NAME].groups[RAW_DATA_GROUP_NAME]
+    if len(datagroup.data_arrays) > 1:
+        # Data split: One DataArray per channel.  Merging
+        nixrawdata = merge_data_arrays(datagroup.data_arrays)
+    else:
+        nixrawdata = datagroup.data_arrays[0][:]
 
-    print(info["dev_head_t"])
-    print(bvfile.info["dev_head_t"])
-
-    print(info["dev_head_t"] == bvfile.info["dev_head_t"])
+    mnerawdata = mne.io.RawArray(nixrawdata, info)
 
     nixfile.close()
 
