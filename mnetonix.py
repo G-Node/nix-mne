@@ -178,8 +178,8 @@ def write_stim_tags(mneraw, block, split):
     if split:
         stimtuples = separate_stimulus_types(stimuli)
         for label, st in stimtuples.items():
-            create_stimulus_multi_tag(st, block, mneraw, split,
-                                      mtagname=label)
+            label = label.replace("/", "-")
+            create_stimulus_multi_tag(st, block, mneraw, mtagname=label)
     else:
         stimtuples = [(l, o, d) for l, o, d in zip(stimuli.description,
                                                    stimuli.onset,
@@ -204,13 +204,13 @@ def create_stimulus_multi_tag(stimtuples, block, mneraw, mtagname="Stimuli"):
         positions = [(0, p) for p in onsets]
         extents = [(channelextent, e) for e in durations]
 
-    posda = block.create_data_array("Stimuli onset", "Stimuli Positions",
+    posda = block.create_data_array(f"{mtagname} onset", "Stimuli Positions",
                                     data=positions)
-    posda.append_set_dimension(labels=labels.tolist())
+    posda.append_set_dimension(labels=labels)
 
-    extda = block.create_data_array("Stimuli Durations", "Stimuli Extents",
+    extda = block.create_data_array(f"{mtagname} durations", "Stimuli Extents",
                                     data=extents)
-    extda.append_set_dimension(labels=labels.tolist())
+    extda.append_set_dimension(labels=labels)
 
     for _ in range(ndim-1):
         # extra set dimensions for any extra data dimensions (beyond the first)
