@@ -1,3 +1,6 @@
+"""
+
+"""
 import os
 import sys
 import numpy as np
@@ -84,6 +87,12 @@ def create_mne_annotations(mtags):
 
 
 def import_nix(nixfilename):
+    """
+    Import a NIX file (generated with mnetonix.py) into an MNE Raw structure.
+
+    :param nixfilename: Path to the NIX file to be loaded.
+    :rtype: mne.io.RawArray
+    """
     nixfile = nix.File(nixfilename, mode=nix.FileMode.ReadOnly)
 
     # root, ext = os.path.splitext(nixfilename)
