@@ -12,10 +12,20 @@
     <p><tt>mnetonix.py<br>
 &nbsp;<br>
 Usage:<br>
-python&nbsp;mnetonix.py&nbsp;&lt;datafile&gt;&nbsp;&lt;montage&gt;<br>
+&nbsp;&nbsp;python&nbsp;mnetonix.py&nbsp;[--split-data]&nbsp;[--split-stimuli]&nbsp;&lt;datafile&gt;&nbsp;&lt;montage&gt;<br>
 &nbsp;<br>
--&nbsp;datafile:&nbsp;Either&nbsp;an&nbsp;EDF&nbsp;file&nbsp;or&nbsp;a&nbsp;BrainVision&nbsp;header&nbsp;file&nbsp;(vhdr).<br>
--&nbsp;montage:&nbsp;Any&nbsp;format&nbsp;montage&nbsp;file&nbsp;supported&nbsp;by&nbsp;MNE.<br>
+Arguments:<br>
+&nbsp;&nbsp;datafile&nbsp;&nbsp;&nbsp;Either&nbsp;an&nbsp;EDF&nbsp;file&nbsp;or&nbsp;a&nbsp;BrainVision&nbsp;header&nbsp;file&nbsp;(vhdr).<br>
+&nbsp;&nbsp;montage&nbsp;&nbsp;&nbsp;&nbsp;Any&nbsp;format&nbsp;montage&nbsp;file&nbsp;supported&nbsp;by&nbsp;MNE.<br>
+&nbsp;<br>
+Flags:<br>
+&nbsp;&nbsp;--split-data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;specified,&nbsp;each&nbsp;channel&nbsp;of&nbsp;raw&nbsp;data&nbsp;is&nbsp;stored&nbsp;in&nbsp;its&nbsp;own<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;separate&nbsp;DataArray.<br>
+&nbsp;<br>
+&nbsp;&nbsp;--split-stimuli&nbsp;&nbsp;&nbsp;If&nbsp;specified,&nbsp;each&nbsp;stimulus&nbsp;type&nbsp;(identified&nbsp;by&nbsp;its&nbsp;label)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is&nbsp;stored&nbsp;in&nbsp;a&nbsp;separate&nbsp;MultiTag&nbsp;(one&nbsp;MultiTag&nbsp;per<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stimulus&nbsp;type).<br>
+&nbsp;<br>
 &nbsp;<br>
 (Requires&nbsp;Python&nbsp;3)<br>
 &nbsp;<br>
@@ -23,25 +33,36 @@ Command&nbsp;line&nbsp;script&nbsp;for&nbsp;reading&nbsp;EDF&nbsp;and&nbsp;Brain
 (mne-python)&nbsp;and&nbsp;storing&nbsp;the&nbsp;data&nbsp;and&nbsp;metadata&nbsp;into&nbsp;a&nbsp;NIX&nbsp;file.&nbsp;&nbsp;Supports<br>
 reading&nbsp;montage&nbsp;files&nbsp;for&nbsp;recording&nbsp;channel&nbsp;locations.<br>
 &nbsp;<br>
-NIX&nbsp;Format&nbsp;layout:<br>
+NIX&nbsp;Format&nbsp;layout<br>
+=================<br>
 &nbsp;<br>
-Data:<br>
+Data<br>
+----<br>
 Raw&nbsp;Data&nbsp;are&nbsp;stored&nbsp;in&nbsp;either&nbsp;a&nbsp;single&nbsp;2-dimensional&nbsp;DataArray&nbsp;or&nbsp;a&nbsp;collection<br>
 of&nbsp;DataArrays&nbsp;(one&nbsp;per&nbsp;recording&nbsp;channel).&nbsp;&nbsp;The&nbsp;latter&nbsp;makes&nbsp;tagging&nbsp;easier<br>
 since&nbsp;MultiTag&nbsp;positions&nbsp;and&nbsp;extents&nbsp;don't&nbsp;need&nbsp;to&nbsp;specify&nbsp;every&nbsp;channel&nbsp;they<br>
 reference.&nbsp;&nbsp;However,&nbsp;creating&nbsp;multiple&nbsp;DataArrays&nbsp;makes&nbsp;file&nbsp;sizes&nbsp;much<br>
 bigger.<br>
 &nbsp;<br>
-Stimuli:<br>
+Stimuli<br>
+-------<br>
 MNE&nbsp;provides&nbsp;stimulus&nbsp;information&nbsp;through&nbsp;the&nbsp;Raw.annotations&nbsp;dictionary.<br>
 Onsets&nbsp;correspond&nbsp;to&nbsp;the&nbsp;'positions'&nbsp;array&nbsp;and&nbsp;durations&nbsp;correspond&nbsp;to&nbsp;the<br>
-'extents'&nbsp;array&nbsp;of&nbsp;the&nbsp;"Stimuli"&nbsp;MultiTag.<br>
+'extents'&nbsp;array&nbsp;of&nbsp;the&nbsp;"Stimuli"&nbsp;MultiTag.&nbsp;&nbsp;If&nbsp;stimulus&nbsp;information&nbsp;is&nbsp;split<br>
+by&nbsp;label,&nbsp;each&nbsp;MultiTag&nbsp;uses&nbsp;the&nbsp;label&nbsp;as&nbsp;its&nbsp;name.<br>
 &nbsp;<br>
-Metadata:<br>
+Metadata<br>
+--------<br>
 MNE&nbsp;collects&nbsp;metadata&nbsp;into&nbsp;a&nbsp;(nested)&nbsp;dictionary&nbsp;(Raw.info).&nbsp;&nbsp;All&nbsp;non-empty<br>
 keys&nbsp;are&nbsp;converted&nbsp;into&nbsp;Properties&nbsp;in&nbsp;NIX.&nbsp;&nbsp;The&nbsp;nested&nbsp;structure&nbsp;of&nbsp;the<br>
 dictionary&nbsp;is&nbsp;replicated&nbsp;in&nbsp;NIX&nbsp;by&nbsp;creating&nbsp;child&nbsp;Sections,&nbsp;starting&nbsp;with&nbsp;one<br>
-root&nbsp;section&nbsp;with&nbsp;name&nbsp;"Info".</tt></p>
+root&nbsp;section&nbsp;with&nbsp;name&nbsp;"Info".<br>
+&nbsp;<br>
+Some&nbsp;extra&nbsp;metadata&nbsp;is&nbsp;kept&nbsp;in&nbsp;the&nbsp;'_raw_extras'&nbsp;private&nbsp;member&nbsp;when&nbsp;loading<br>
+from&nbsp;EDF&nbsp;files.&nbsp;&nbsp;This&nbsp;seems&nbsp;to&nbsp;be&nbsp;missing&nbsp;from&nbsp;the&nbsp;'Info'&nbsp;dictionary&nbsp;in&nbsp;order<br>
+to&nbsp;keep&nbsp;it&nbsp;anonymous&nbsp;(missing&nbsp;keys&nbsp;are&nbsp;'subject_info',&nbsp;'meas_date',&nbsp;'file_id',<br>
+and&nbsp;'meas_id').&nbsp;&nbsp;The&nbsp;'_raw_extras'&nbsp;are&nbsp;also&nbsp;stored&nbsp;in&nbsp;the&nbsp;NIX&nbsp;file&nbsp;in&nbsp;a<br>
+separate&nbsp;Section&nbsp;with&nbsp;name&nbsp;"Extras".</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">
@@ -62,13 +83,15 @@ root&nbsp;section&nbsp;with&nbsp;name&nbsp;"Info".</tt></p>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-create_md_tree"><strong>create_md_tree</strong></a>(section, values)</dt></dl>
+<td width="100%"><dl><dt><a name="-create_md_tree"><strong>create_md_tree</strong></a>(section, values, block)</dt></dl>
+ <dl><dt><a name="-create_stimulus_multi_tag"><strong>create_stimulus_multi_tag</strong></a>(stimtuples, block, mneraw, mtagname='Stimuli')</dt></dl>
  <dl><dt><a name="-main"><strong>main</strong></a>()</dt></dl>
  <dl><dt><a name="-plot_channel"><strong>plot_channel</strong></a>(data_array, index)</dt></dl>
+ <dl><dt><a name="-separate_stimulus_types"><strong>separate_stimulus_types</strong></a>(stimuli)</dt></dl>
  <dl><dt><a name="-write_multi_da"><strong>write_multi_da</strong></a>(mneraw, block)</dt></dl>
- <dl><dt><a name="-write_raw_mne"><strong>write_raw_mne</strong></a>(nfname, mneraw, split_data_channels=True)</dt></dl>
+ <dl><dt><a name="-write_raw_mne"><strong>write_raw_mne</strong></a>(nfname, mneraw, split_data_channels=False, split_stimuli=False)</dt></dl>
  <dl><dt><a name="-write_single_da"><strong>write_single_da</strong></a>(mneraw, block)</dt></dl>
- <dl><dt><a name="-write_stim_tags"><strong>write_stim_tags</strong></a>(mneraw, block)</dt></dl>
+ <dl><dt><a name="-write_stim_tags"><strong>write_stim_tags</strong></a>(mneraw, block, split)</dt></dl>
 </td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#55aa55">
@@ -76,5 +99,9 @@ root&nbsp;section&nbsp;with&nbsp;name&nbsp;"Info".</tt></p>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
     
 <tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>RAW_DATA_TYPE</strong> = 'Raw Data'</td></tr></table>
+<td width="100%"><strong>DATA_BLOCK_NAME</strong> = 'EEG Data Block'<br>
+<strong>DATA_BLOCK_TYPE</strong> = 'Recording'<br>
+<strong>RAW_DATA_GROUP_NAME</strong> = 'Raw Data Group'<br>
+<strong>RAW_DATA_GROUP_TYPE</strong> = 'EEG Channels'<br>
+<strong>RAW_DATA_TYPE</strong> = 'Raw Data'</td></tr></table>
 </body></html>
