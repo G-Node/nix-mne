@@ -2,10 +2,20 @@
 mnetonix.py
 
 Usage:
-  python mnetonix.py <datafile> <montage>
+  python mnetonix.py [--split-data] [--split-stimuli] <datafile> <montage>
 
-datafile: Either an EDF file or a BrainVision header file (vhdr).
-montage: Any format montage file supported by MNE.
+Arguments:
+  datafile   Either an EDF file or a BrainVision header file (vhdr).
+  montage    Any format montage file supported by MNE.
+
+Flags:
+  --split-data      If specified, each channel of raw data is stored in its own
+                    separate DataArray.
+
+  --split-stimuli   If specified, each stimulus type (identified by its label)
+                    is stored in a separate MultiTag (one MultiTag per
+                    stimulus type).
+
 
 (Requires Python 3)
 
@@ -13,25 +23,35 @@ Command line script for reading EDF and BrainVision files using MNE
 (mne-python) and storing the data and metadata into a NIX file.  Supports
 reading montage files for recording channel locations.
 
-NIX Format layout:
+NIX Format layout
+=================
 
-Data:
+Data
+----
 Raw Data are stored in either a single 2-dimensional DataArray or a collection
 of DataArrays (one per recording channel).  The latter makes tagging easier
 since MultiTag positions and extents don't need to specify every channel they
 reference.  However, creating multiple DataArrays makes file sizes much
 bigger.
 
-Stimuli:
+Stimuli
+-------
 MNE provides stimulus information through the Raw.annotations dictionary.
 Onsets correspond to the 'positions' array and durations correspond to the
 'extents' array of the "Stimuli" MultiTag.
 
-Metadata:
+Metadata
+--------
 MNE collects metadata into a (nested) dictionary (Raw.info).  All non-empty
 keys are converted into Properties in NIX.  The nested structure of the
 dictionary is replicated in NIX by creating child Sections, starting with one
 root section with name "Info".
+
+Some extra metadata is kept in the '_raw_extras' private member when loading
+from EDF files.  This seems to be missing from the 'Info' dictionary in order
+to keep it anonymous (missing keys are 'subject_info', 'meas_date', 'file_id',
+and 'meas_id').  The '_raw_extras' are also stored in the NIX file in a
+separate Section with name "Extras".
 
 """
 import sys
