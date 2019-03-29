@@ -1,5 +1,22 @@
 """
+readrawnix.py
 
+Usage:
+  python readrawnix.py <nixfile>
+
+Arguments:
+  nixfile   Path to the NIX file to read.
+
+
+(Requires Python 3)
+
+Command line script for reading NIX files into an MNE structure (mne-python).
+NIX file should have been created using the mnetonix.py script/module.  This
+reader expects certain objects relationships and names to exist in order to
+load all data and metadata successfully.  Refer to the "NIX Format Layout" in
+the mnetonix.py module for details.
+
+To include in a script, call the 'importnix()' and provide a NIX filename.
 """
 import os
 import sys
