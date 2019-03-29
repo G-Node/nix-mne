@@ -16,7 +16,7 @@ reader expects certain objects relationships and names to exist in order to
 load all data and metadata successfully.  Refer to the "NIX Format Layout" in
 the mnetonix.py module for details.
 
-To include in a script, call the 'importnix()' and provide a NIX filename.
+To include in a script, call the 'import_nix()' and provide a NIX filename.
 """
 import os
 import sys
