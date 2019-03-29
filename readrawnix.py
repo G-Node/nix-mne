@@ -1,3 +1,4 @@
+import os
 import sys
 import numpy as np
 import nixio as nix
@@ -85,9 +86,9 @@ def create_mne_annotations(mtags):
 def import_nix(nixfilename):
     nixfile = nix.File(nixfilename, mode=nix.FileMode.ReadOnly)
 
-    # root, ext = os.path.splitext(nixfilename)
-    # bvfilename = root + os.extsep + "vhdr"
-    # bvfile = mne.io.read_raw_brainvision(bvfilename, stim_channel=False)
+    root, ext = os.path.splitext(nixfilename)
+    bvfilename = root + os.extsep + "edf"
+    bvfile = mne.io.read_raw_edf(bvfilename, stim_channel=False)
 
     # Create MNE Info object
     infosec = nixfile.sections["Info"]
@@ -114,6 +115,11 @@ def import_nix(nixfilename):
     annotations = create_mne_annotations(mtags)
 
     mnerawdata.set_annotations(annotations)
+
+    # print("NIX")
+    # print(nixfile.sections["Extras"].props)
+    # print("=============\n\nEDF")
+    # print(bvfile._raw_extras)
 
     nixfile.close()
 

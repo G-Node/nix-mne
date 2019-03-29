@@ -159,20 +159,50 @@ def write_multi_da(mneraw, block):
         da.append_range_dimension(ticks=time, label="time", unit="s")
 
 
-def write_stim_tags(mneraw, block):
+def separate_stimulus_types(stimuli):
+    # separate stimuli based on label
+    stimdict = dict()
+    for label, onset, duration in zip(stimuli.description,
+                                      stimuli.onset,
+                                      stimuli.duration):
+        if label not in stimdict:
+            stimdict[label] = [(label, onset, duration)]
+        else:
+            stimdict[label].append((label, onset, duration))
+    return stimdict
+
+
+def write_stim_tags(mneraw, block, split):
+    stimuli = mneraw.annotations
+
+    if split:
+        stimtuples = separate_stimulus_types(stimuli)
+        for label, st in stimtuples.items():
+            create_stimulus_multi_tag(st, block, mneraw, split,
+                                      mtagname=label)
+    else:
+        stimtuples = [(l, o, d) for l, o, d in zip(stimuli.description,
+                                                   stimuli.onset,
+                                                   stimuli.duration)]
+        create_stimulus_multi_tag(stimtuples, block, mneraw)
+
+
+def create_stimulus_multi_tag(stimtuples, block, mneraw, mtagname="Stimuli"):
     # check dimensionality of data
     datashape = block.groups[RAW_DATA_GROUP_NAME].data_arrays[0].shape
-    stimuli = mneraw.annotations
-    labels = stimuli.description
+
+    labels = [st[0] for st in stimtuples]
+    onsets = [st[1] for st in stimtuples]
+    durations = [st[2] for st in stimtuples]
 
     ndim = len(datashape)
     if ndim == 1:
-        positions = stimuli.onset
-        extents = stimuli.duration
+        positions = onsets
+        extents = durations
     else:
         channelextent = mneraw.info["nchan"] - 1
-        positions = [(0, p) for p in stimuli.onset]
-        extents = [(channelextent, e) for e in stimuli.duration]
+        positions = [(0, p) for p in onsets]
+        extents = [(channelextent, e) for e in durations]
 
     posda = block.create_data_array("Stimuli onset", "Stimuli Positions",
                                     data=positions)
@@ -187,7 +217,7 @@ def write_stim_tags(mneraw, block):
         posda.append_set_dimension()
         extda.append_set_dimension()
 
-    stimmtag = block.create_multi_tag("Stimuli", "EEG Stimuli",
+    stimmtag = block.create_multi_tag(mtagname, "EEG Stimuli",
                                       positions=posda)
     stimmtag.extents = extda
     block.groups[RAW_DATA_GROUP_NAME].multi_tags.append(stimmtag)
@@ -197,7 +227,8 @@ def write_stim_tags(mneraw, block):
             stimmtag.references.append(da)
 
 
-def write_raw_mne(nfname, mneraw, split_data_channels=False):
+def write_raw_mne(nfname, mneraw,
+                  split_data_channels=False, split_stimuli=False):
     mneinfo = mneraw.info
     extrainfo = mneraw._raw_extras
 
@@ -215,7 +246,7 @@ def write_raw_mne(nfname, mneraw, split_data_channels=False):
         write_single_da(mneraw, block)
 
     if mneraw.annotations:
-        write_stim_tags(mneraw, block)
+        write_stim_tags(mneraw, block, split_stimuli)
 
     # Write metadata to NIX
     # info dictionary
@@ -249,6 +280,11 @@ def main():
         splitdata = True
         args.remove("--split-data")
 
+    splitstim = False
+    if "--split-stimuli" in args:
+        splitstim = True
+        args.remove("--split-stimuli")
+
     datafilename = args[1]
     montage = None
     if len(args) > 2:
@@ -266,9 +302,11 @@ def main():
         raise RuntimeError(f"Unknown extension '{ext}'")
     print(f"Converting '{datafilename}' to NIX")
     if splitdata:
-        print("  Creating one data array per channel")
+        print("  Creating one DataArray per channel")
+    if splitstim:
+        print("  Creating one MultiTag for each stimulus type")
 
-    write_raw_mne(nfname, mneraw, splitdata)
+    write_raw_mne(nfname, mneraw, splitdata, splitstim)
 
     mneraw.close()
 
