@@ -23,6 +23,9 @@ Command line script for reading EDF and BrainVision files using MNE
 (mne-python) and storing the data and metadata into a NIX file.  Supports
 reading montage files for recording channel locations.
 
+To include in a script, call the 'write_raw_mne()' and provide a NIX filename
+and MNE Raw structure as arguments.
+
 NIX Format layout
 =================
 
@@ -250,6 +253,18 @@ def create_stimulus_multi_tag(stimtuples, block, mneraw, mtagname="Stimuli"):
 
 def write_raw_mne(nfname, mneraw,
                   split_data_channels=False, split_stimuli=False):
+    """
+    Writes the provided Raw MNE structure to a NIX file with the given name.
+
+    :param nfname: Name for the NIX file to write to. Existing file will be
+    overwritten.
+    :param mneraw: An MNE Raw structure (any mne.io.BaseRaw subclass).
+    :param split_data_channels: If True, each raw data channel will be stored
+    in a separate DataArray.
+    :param split_stimuli: If True, stimuli will be split into separate
+    MultiTags based on the stimulus type (label).
+    :rtype: None
+    """
     mneinfo = mneraw.info
     extrainfo = mneraw._raw_extras
 

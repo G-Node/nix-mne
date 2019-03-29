@@ -33,6 +33,9 @@ Command&nbsp;line&nbsp;script&nbsp;for&nbsp;reading&nbsp;EDF&nbsp;and&nbsp;Brain
 (mne-python)&nbsp;and&nbsp;storing&nbsp;the&nbsp;data&nbsp;and&nbsp;metadata&nbsp;into&nbsp;a&nbsp;NIX&nbsp;file.&nbsp;&nbsp;Supports<br>
 reading&nbsp;montage&nbsp;files&nbsp;for&nbsp;recording&nbsp;channel&nbsp;locations.<br>
 &nbsp;<br>
+To&nbsp;include&nbsp;in&nbsp;a&nbsp;script,&nbsp;call&nbsp;the&nbsp;'<a href="#-write_raw_mne">write_raw_mne</a>()'&nbsp;and&nbsp;provide&nbsp;a&nbsp;NIX&nbsp;filename<br>
+and&nbsp;MNE&nbsp;Raw&nbsp;structure&nbsp;as&nbsp;arguments.<br>
+&nbsp;<br>
 NIX&nbsp;Format&nbsp;layout<br>
 =================<br>
 &nbsp;<br>
@@ -89,7 +92,16 @@ separate&nbsp;Section&nbsp;with&nbsp;name&nbsp;"Extras".</tt></p>
  <dl><dt><a name="-plot_channel"><strong>plot_channel</strong></a>(data_array, index)</dt></dl>
  <dl><dt><a name="-separate_stimulus_types"><strong>separate_stimulus_types</strong></a>(stimuli)</dt></dl>
  <dl><dt><a name="-write_multi_da"><strong>write_multi_da</strong></a>(mneraw, block)</dt></dl>
- <dl><dt><a name="-write_raw_mne"><strong>write_raw_mne</strong></a>(nfname, mneraw, split_data_channels=False, split_stimuli=False)</dt></dl>
+ <dl><dt><a name="-write_raw_mne"><strong>write_raw_mne</strong></a>(nfname, mneraw, split_data_channels=False, split_stimuli=False)</dt><dd><tt>Writes&nbsp;the&nbsp;provided&nbsp;Raw&nbsp;MNE&nbsp;structure&nbsp;to&nbsp;a&nbsp;NIX&nbsp;file&nbsp;with&nbsp;the&nbsp;given&nbsp;name.<br>
+&nbsp;<br>
+:param&nbsp;nfname:&nbsp;Name&nbsp;for&nbsp;the&nbsp;NIX&nbsp;file&nbsp;to&nbsp;write&nbsp;to.&nbsp;Existing&nbsp;file&nbsp;will&nbsp;be<br>
+overwritten.<br>
+:param&nbsp;mneraw:&nbsp;An&nbsp;MNE&nbsp;Raw&nbsp;structure&nbsp;(any&nbsp;mne.io.BaseRaw&nbsp;subclass).<br>
+:param&nbsp;split_data_channels:&nbsp;If&nbsp;True,&nbsp;each&nbsp;raw&nbsp;data&nbsp;channel&nbsp;will&nbsp;be&nbsp;stored<br>
+in&nbsp;a&nbsp;separate&nbsp;DataArray.<br>
+:param&nbsp;split_stimuli:&nbsp;If&nbsp;True,&nbsp;stimuli&nbsp;will&nbsp;be&nbsp;split&nbsp;into&nbsp;separate<br>
+MultiTags&nbsp;based&nbsp;on&nbsp;the&nbsp;stimulus&nbsp;type&nbsp;(label).<br>
+:rtype:&nbsp;None</tt></dd></dl>
  <dl><dt><a name="-write_single_da"><strong>write_single_da</strong></a>(mneraw, block)</dt></dl>
  <dl><dt><a name="-write_stim_tags"><strong>write_stim_tags</strong></a>(mneraw, block, split)</dt></dl>
 </td></tr></table><p>
