@@ -38,7 +38,8 @@ Stimuli
 -------
 MNE provides stimulus information through the Raw.annotations dictionary.
 Onsets correspond to the 'positions' array and durations correspond to the
-'extents' array of the "Stimuli" MultiTag.
+'extents' array of the "Stimuli" MultiTag.  If stimulus information is split
+by label, each MultiTag uses the label as its name.
 
 Metadata
 --------
