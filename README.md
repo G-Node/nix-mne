@@ -5,4 +5,4 @@ Documentation to the formats is here:
 [BVF](https://www.brainproducts.com/files/public/products/more/BrainVisionCoreFileFormat_1-0.pdf)
 [EDF](https://www.edfplus.info/specs/edf.html)
 
-**NB:** *Original repository contained annexed data that weren't transfered.  The repository will be cleaned (eventually) and only the conversion script will be kept.
+**NB:** *Original repository contained annexed data that weren't transfered.  The repository will be cleaned (eventually) and only the conversion script will be kept.*
